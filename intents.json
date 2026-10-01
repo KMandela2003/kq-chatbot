@@ -1,0 +1,364 @@
+{
+  "intents": [
+    {
+      "id": "baggage_allowance",
+      "category": "passenger",
+      "label": "Baggage Allowance",
+      "phrases": [
+        "what is my baggage allowance",
+        "how many kilos can I check in",
+        "how much luggage am I allowed to carry",
+        "what's the weight limit for check-in luggage",
+        "can I carry two suitcases",
+        "how many bags can I bring on board",
+        "what is the cabin baggage weight limit",
+        "extra baggage fees",
+        "how much does an extra bag cost",
+        "baggage weight limit economy class"
+      ],
+      "response": "Economy passengers get 23kg checked baggage and 1 cabin bag up to 7kg. Business class allows 32kg checked. Extra bags can be added at booking or at the airport for a fee."
+    },
+    {
+      "id": "flight_status",
+      "category": "passenger",
+      "label": "Flight Status",
+      "phrases": [
+        "is my flight on time",
+        "what is the status of flight KQ100",
+        "has my flight been delayed",
+        "flight status check",
+        "is KQ 310 delayed",
+        "when does my flight depart",
+        "flight departure time",
+        "is my flight cancelled",
+        "check flight arrival time",
+        "current status of my flight"
+      ],
+      "response": "Please share your flight number and I can pull the latest departure and arrival status for you (demo: live status lookup would connect to the ops system)."
+    },
+    {
+      "id": "booking_change",
+      "category": "passenger",
+      "label": "Booking Change",
+      "phrases": [
+        "I want to change my flight date",
+        "can I reschedule my booking",
+        "how do I change my ticket",
+        "modify my reservation",
+        "change passenger name on ticket",
+        "rebook my flight",
+        "can I move my flight to next week",
+        "how much does it cost to change a flight",
+        "amend my booking",
+        "switch my travel date"
+      ],
+      "response": "You can change your booking through Manage My Booking on our website, or I can start the change request here. Date changes may incur a fare difference plus a change fee, depending on your ticket type."
+    },
+    {
+      "id": "checkin_process",
+      "category": "passenger",
+      "label": "Check-in Process",
+      "phrases": [
+        "how do I check in for my flight",
+        "when does online check-in open",
+        "can I check in from my phone",
+        "airport check-in counter hours",
+        "do I need to check in early",
+        "how early should I arrive for check-in",
+        "web check-in not working",
+        "print my boarding pass",
+        "mobile boarding pass",
+        "check-in deadline"
+      ],
+      "response": "Online check-in opens 48 hours before departure and closes 90 minutes prior. Airport counters open 3 hours before departure and close 60 minutes before. You can check in via our app, website, or airport kiosk."
+    },
+    {
+      "id": "refund_policy",
+      "category": "passenger",
+      "label": "Refund Policy",
+      "phrases": [
+        "how do I get a refund",
+        "can I get my money back for a cancelled flight",
+        "refund process for my ticket",
+        "is my ticket refundable",
+        "how long does a refund take",
+        "cancel my flight and refund",
+        "refund for a delayed flight",
+        "partial refund policy",
+        "request refund for unused ticket",
+        "refund eligibility"
+      ],
+      "response": "Refund eligibility depends on your fare class. Refundable tickets are processed within 7-14 business days back to the original payment method. I can start a refund request if you share your booking reference."
+    },
+    {
+      "id": "lost_baggage",
+      "category": "passenger",
+      "label": "Lost Baggage",
+      "phrases": [
+        "my bag did not arrive",
+        "lost luggage claim",
+        "where is my missing suitcase",
+        "baggage did not show up on the belt",
+        "how do I report lost baggage",
+        "damaged luggage on arrival",
+        "my suitcase is missing",
+        "track my delayed bag",
+        "file a baggage complaint",
+        "bag was damaged during the flight"
+      ],
+      "response": "I'm sorry about your baggage. Please file a Property Irregularity Report at the airport baggage desk or online within 7 days. Share your baggage tag number and I can start tracking it for you."
+    },
+    {
+      "id": "seat_selection",
+      "category": "passenger",
+      "label": "Seat Selection",
+      "phrases": [
+        "how do I choose my seat",
+        "can I select an aisle seat",
+        "seat map for my flight",
+        "change my seat assignment",
+        "window seat request",
+        "extra legroom seat cost",
+        "can I sit with my family",
+        "seat upgrade options",
+        "how to pick seats online",
+        "reserve a specific seat"
+      ],
+      "response": "You can select or change your seat through Manage My Booking up to check-in. Extra-legroom and window/aisle preferences may carry an additional fee depending on fare class."
+    },
+    {
+      "id": "flight_delay_compensation",
+      "category": "passenger",
+      "label": "Delay Compensation",
+      "phrases": [
+        "am I entitled to compensation for a delayed flight",
+        "flight was delayed for 5 hours what can I claim",
+        "compensation for cancelled flight",
+        "delay compensation policy",
+        "can I get a refund for a long delay",
+        "missed connection due to delay compensation",
+        "claim for flight disruption",
+        "denied boarding compensation",
+        "compensation for overnight delay",
+        "what happens if my flight is delayed"
+      ],
+      "response": "Compensation depends on the delay length, cause, and route regulations. For delays over 3 hours we typically offer meal vouchers and, where applicable, accommodation. Share your flight number and I'll check your specific entitlement."
+    },
+    {
+      "id": "travel_documents",
+      "category": "passenger",
+      "label": "Travel Documents",
+      "phrases": [
+        "what documents do I need to travel",
+        "do I need a visa for this destination",
+        "passport validity requirements",
+        "covid travel requirements",
+        "entry requirements for my destination",
+        "do children need a passport",
+        "travel documents for international flight",
+        "what ID do I need for domestic flight",
+        "visa on arrival information",
+        "transit visa requirements"
+      ],
+      "response": "Document requirements vary by destination and nationality. Generally your passport should be valid for at least 6 months beyond travel. Tell me your destination and nationality and I'll check specific visa/entry requirements."
+    },
+    {
+      "id": "loyalty_program",
+      "category": "passenger",
+      "label": "Loyalty Program",
+      "phrases": [
+        "how do I earn miles",
+        "check my frequent flyer points",
+        "loyalty program benefits",
+        "how to redeem miles for a flight",
+        "join the frequent flyer program",
+        "miles expiry policy",
+        "upgrade using miles",
+        "elite status requirements",
+        "how many miles do I have",
+        "frequent flyer tier benefits"
+      ],
+      "response": "You earn miles based on fare class and distance flown. Miles can be redeemed for flight awards, upgrades, or partner rewards. Log in to your loyalty account or share your membership number for a balance check."
+    },
+    {
+      "id": "shift_schedule",
+      "category": "staff",
+      "label": "Shift Schedule",
+      "phrases": [
+        "what is my shift schedule this week",
+        "when is my next shift",
+        "check my roster",
+        "shift timing for tomorrow",
+        "my duty schedule",
+        "roster for next month",
+        "what time does my shift start",
+        "shift handover time",
+        "am I on morning or night shift",
+        "view my work schedule"
+      ],
+      "response": "Your shift schedule is published on the internal rostering portal a week in advance. Share your staff ID and I can pull your upcoming shifts for you."
+    },
+    {
+      "id": "leave_request",
+      "category": "staff",
+      "label": "Leave Request",
+      "phrases": [
+        "how do I apply for leave",
+        "submit annual leave request",
+        "how many leave days do I have left",
+        "sick leave procedure",
+        "apply for unpaid leave",
+        "leave balance check",
+        "request time off",
+        "maternity leave policy",
+        "how to file for shift leave",
+        "cancel a leave request"
+      ],
+      "response": "Leave requests are submitted through the HR self-service portal at least 2 weeks in advance for annual leave. I can show your current leave balance if you share your staff ID."
+    },
+    {
+      "id": "hr_policy",
+      "category": "staff",
+      "label": "HR Policy",
+      "phrases": [
+        "what is the dress code policy",
+        "company code of conduct",
+        "overtime pay policy",
+        "disciplinary procedure",
+        "employee benefits overview",
+        "probation period policy",
+        "grievance procedure",
+        "workplace harassment policy",
+        "remote work policy",
+        "employee handbook access"
+      ],
+      "response": "HR policies are documented in the Employee Handbook on the internal portal. I can summarize the specific policy you're asking about, or point you to the exact handbook section."
+    },
+    {
+      "id": "payroll_query",
+      "category": "staff",
+      "label": "Payroll Query",
+      "phrases": [
+        "when will I be paid this month",
+        "payslip not received",
+        "salary payment date",
+        "deductions on my payslip",
+        "tax deduction query",
+        "overtime payment not reflected",
+        "how to update my bank details for payroll",
+        "allowance not paid",
+        "payroll discrepancy",
+        "download my payslip"
+      ],
+      "response": "Salaries are processed on the last working day of the month. For payslip access or discrepancies, I can direct you to the payroll self-service portal or flag this for the payroll team."
+    },
+    {
+      "id": "uniform_guidelines",
+      "category": "staff",
+      "label": "Uniform Guidelines",
+      "phrases": [
+        "where do I order my uniform",
+        "uniform replacement policy",
+        "grooming standards for cabin crew",
+        "how to request a new uniform size",
+        "uniform maintenance guidelines",
+        "lost uniform replacement",
+        "uniform ordering deadline",
+        "seasonal uniform guidelines",
+        "shoe policy for ground staff",
+        "uniform fitting appointment"
+      ],
+      "response": "Uniform orders and replacements are handled through the uniform services desk. I can help you start a replacement request or share the grooming standards document."
+    },
+    {
+      "id": "training_schedule",
+      "category": "staff",
+      "label": "Training Schedule",
+      "phrases": [
+        "when is my next recurrent training",
+        "safety training schedule",
+        "mandatory training deadline",
+        "how do I book a training session",
+        "certification renewal date",
+        "training module not showing on portal",
+        "upcoming training calendar",
+        "missed a mandatory training session",
+        "where do I complete online training",
+        "training compliance status"
+      ],
+      "response": "Recurrent and mandatory training schedules are posted on the Learning Management portal. Share your staff ID and I can check your next due date and compliance status."
+    },
+    {
+      "id": "internal_it_support",
+      "category": "staff",
+      "label": "Internal IT Support",
+      "phrases": [
+        "I cannot log into the staff portal",
+        "reset my work email password",
+        "VPN not connecting",
+        "laptop not starting",
+        "printer not working in the office",
+        "software installation request",
+        "IT helpdesk ticket status",
+        "wifi issues at the office",
+        "cannot access shared drive",
+        "system error on the internal app"
+      ],
+      "response": "For IT issues, I can log a helpdesk ticket now, or you can reach the IT helpdesk directly for urgent outages. Can you describe the exact error you're seeing?"
+    },
+    {
+      "id": "emergency_protocol",
+      "category": "staff",
+      "label": "Emergency Protocol",
+      "phrases": [
+        "what is the emergency evacuation procedure",
+        "medical emergency protocol on board",
+        "who do I contact during an operational emergency",
+        "fire safety procedure at the office",
+        "security incident reporting process",
+        "emergency contact numbers",
+        "what to do during a security threat",
+        "crew emergency response steps",
+        "incident report submission",
+        "safety protocol for ground operations"
+      ],
+      "response": "Emergency protocols are detailed in the Operations Safety Manual. For an active emergency, always contact the duty operations manager immediately at the emergency line rather than relying on this chat."
+    },
+    {
+      "id": "performance_review",
+      "category": "staff",
+      "label": "Performance Review",
+      "phrases": [
+        "when is my performance review",
+        "how is my appraisal calculated",
+        "performance improvement plan process",
+        "self-assessment form submission",
+        "annual review schedule",
+        "how to dispute a performance rating",
+        "goal setting for appraisal",
+        "manager feedback process",
+        "promotion review criteria",
+        "mid-year review timeline"
+      ],
+      "response": "Performance reviews follow the annual appraisal cycle, with self-assessments due before your manager review. I can share the current cycle's key dates."
+    },
+    {
+      "id": "shift_swap",
+      "category": "staff",
+      "label": "Shift Swap",
+      "phrases": [
+        "can I swap my shift with a colleague",
+        "how to request a shift exchange",
+        "shift swap approval process",
+        "trade shifts with another staff member",
+        "cover my shift next week",
+        "shift swap deadline",
+        "who approves shift swaps",
+        "cancel a shift swap request",
+        "find someone to cover my shift",
+        "shift exchange policy"
+      ],
+      "response": "Shift swaps can be requested on the rostering portal and require supervisor approval at least 48 hours in advance. I can help you start a swap request now."
+    }
+  ]
+}
