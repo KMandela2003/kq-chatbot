@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KQ Connect — Kenya Airways Support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="board">
+    <header class="board-header">
+      <div class="brand">
+        <span class="brand-mark">✈</span>
+        <span class="brand-name">KQ CONNECT</span>
+      </div>
+      <div class="role-switch" role="tablist" aria-label="Viewing as">
+        <button class="role-btn active" data-role="passenger" role="tab" aria-selected="true">Passenger</button>
+        <button class="role-btn" data-role="employee" role="tab" aria-selected="false">Staff</button>
+      </div>
+    </header>
+
+    <main class="transcript" id="transcript" aria-live="polite">
+      <div class="msg msg-bot">
+        <div class="bubble">Hello — I'm the Kenya Airways support assistant. Ask me about baggage, flights, bookings, or (if you're staff) HR and shift questions.</div>
+      </div>
+    </main>
+
+    <form class="composer" id="composer">
+      <input
+        id="messageInput"
+        type="text"
+        autocomplete="off"
+        placeholder="Ask about baggage, flight status, shift roster…"
+        aria-label="Message"
+      />
+      <button type="submit" id="sendBtn">Send</button>
+    </form>
+
+    <a class="admin-link" href="/admin">View admin dashboard</a>
+  </div>
+
+  <script src="/static/js/chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KQ Connect — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/admin.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">✈</span>
+        <span class="brand-name">KQ CONNECT — OPS BOARD</span>
+      </div>
+      <a class="back-link" href="/">Back to chat</a>
+    </header>
+
+    <section class="stat-row" id="statRow"></section>
+
+    <section class="panel">
+      <h2>Intent distribution (live traffic)</h2>
+      <div id="intentBars" class="bars"></div>
+      <p class="empty-note" id="intentEmpty" hidden>No interactions logged yet — send a few messages in the chat first.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Recent interaction log</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Role</th>
+              <th>Message</th>
+              <th>Intent</th>
+              <th>Confidence</th>
+              <th>Latency</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>
