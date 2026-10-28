@@ -1,709 +1,477 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-[#090D12]">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kenya Airways AI Assistant | The Pride of Africa</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        kq: {
-                            red: '#C8102E',
-                            redDark: '#A00C23',
-                            gold: '#D4AF37',
-                            goldHover: '#B59328',
-                            navy: '#0B0F17',
-                            card: '#131924',
-                            border: '#20293A',
-                            accent: '#1E2738'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
+    <title>Kenya Airways - AI Assistant</title>
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0B0F17;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #20293A;
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #C8102E;
+        :root {
+            --kq-red: #C8102E;
+            --kq-red-hover: #A00C24;
+            --kq-gold: #D4AF37;
+            --kq-dark: #090D12;
+            --kq-card-bg: rgba(22, 27, 34, 0.85);
+            --kq-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --passenger-accent: #C8102E;
+            --staff-accent: #2563EB;
         }
 
-        /* Glassmorphism Effect */
-        .glass-panel {
-            background: rgba(19, 25, 36, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Gradient Text */
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #FFF 30%, #D4AF37 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        body {
+            background-color: var(--kq-dark);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* Pulse Animation for Live Status */
-        @keyframes radar-pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.15); opacity: 0.4; }
-            100% { transform: scale(0.95); opacity: 0.8; }
+        /* Header / Brand Bar */
+        header {
+            background: rgba(13, 17, 23, 0.95);
+            border-bottom: 1px solid var(--kq-border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
         }
-        .radar-dot {
-            animation: radar-pulse 2s infinite ease-in-out;
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .kq-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--kq-red), #800014);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #FFF;
+            font-size: 16px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(200, 16, 46, 0.4);
+        }
+
+        .brand-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--kq-gold);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Mode / Tab Switcher Bar */
+        .tab-switcher-container {
+            display: flex;
+            justify-content: center;
+            padding: 12px 24px 0 24px;
+            background: #0d1117;
+        }
+
+        .tab-group {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--kq-border);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active[data-role="passenger"] {
+            background: var(--kq-red);
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(200, 16, 46, 0.3);
+        }
+
+        .tab-btn.active[data-role="staff"] {
+            background: var(--staff-accent);
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Main Workspace & Chat Containers */
+        main {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-panel {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 6px;
+            gap: 16px;
+        }
+
+        .chat-panel.active {
+            display: flex;
+        }
+
+        /* Message Bubbles */
+        .message-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .message-row.user {
+            align-self: flex-end;
+        }
+
+        .message-row.assistant {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message-row.user .bubble {
+            background: #21262D;
+            color: #FFF;
+            border-bottom-right-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .message-row.assistant .bubble {
+            background: var(--kq-card-bg);
+            border: 1px solid var(--kq-border);
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Telemetry Metadata Tag */
+        .telemetry-tag {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .telemetry-tag span {
+            color: var(--kq-gold);
+            font-weight: 600;
+        }
+
+        /* Suggestions Bar */
+        .suggestions-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--kq-border);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .chip:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Input Controls Area */
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding-top: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(22, 27, 34, 0.9);
+            border: 1px solid var(--kq-border);
+            border-radius: 10px;
+            padding: 14px;
+            color: #FFF;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--kq-red);
+        }
+
+        .send-btn {
+            background: var(--kq-red);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background: var(--kq-red-hover);
+        }
+
+        .staff-badge {
+            font-size: 0.72rem;
+            background: rgba(37, 99, 235, 0.2);
+            color: #60A5FA;
+            border: 1px solid rgba(37, 99, 235, 0.4);
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
+<body>
 
-<body class="h-full flex flex-col text-slate-100 font-sans antialiased bg-[#090D12] selection:bg-kq-red selection:text-white">
-
-    <!-- TOP BRAND HEADER -->
-    <header class="w-full glass-panel sticky top-0 z-30 border-b border-kq-border px-4 lg:px-8 py-3.5 flex items-center justify-between shadow-2xl">
-        <!-- Brand Logo & Title -->
-        <div class="flex items-center space-x-3.5">
-            <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-kq-red to-kq-redDark text-white shadow-lg shadow-kq-red/20 ring-1 ring-white/20">
-                <i class="fa-solid font-bold fa-plane-departure text-lg"></i>
-                <span class="absolute -bottom-1 -right-1 flex h-3 w-3">
-                    <span class="radar-dot absolute inline-flex h-full w-full rounded-full bg-kq-gold opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-kq-gold"></span>
-                </span>
-            </div>
+    <!-- Header -->
+    <header>
+        <div class="brand-container">
+            <div class="kq-logo">KQ</div>
             <div>
-                <div class="flex items-center space-x-2">
-                    <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
-                        Kenya Airways <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded bg-kq-gold/20 text-kq-gold border border-kq-gold/30">AI Assistant</span>
-                    </h1>
-                </div>
-                <p class="text-xs text-slate-400 font-medium">The Pride of Africa • Smart Ops & Travel Portal</p>
+                <div class="brand-title">Kenya Airways</div>
+                <div class="brand-subtitle">The Pride of Africa — AI Assistant</div>
             </div>
         </div>
-
-        <!-- Role Toggle & Quick Controls -->
-        <div class="flex items-center space-x-2 sm:space-x-4">
-            <!-- Role Switcher Pill -->
-            <div class="bg-kq-navy p-1 rounded-full border border-kq-border flex items-center shadow-inner">
-                <button id="rolePassengerBtn" onclick="switchRole('passenger')" 
-                        class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 bg-kq-red text-white shadow-md">
-                    <i class="fa-solid fa-user text-[11px]"></i>
-                    <span>Passenger</span>
-                </button>
-                <button id="roleStaffBtn" onclick="switchRole('staff')" 
-                        class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-1.5">
-                    <i class="fa-solid fa-id-card text-[11px]"></i>
-                    <span>Staff</span>
-                </button>
-            </div>
-
-            <!-- Quick Action Icons -->
-            <button onclick="toggleFlightModal()" title="Live Flight Tracker" 
-                    class="p-2.5 rounded-xl bg-kq-accent/80 hover:bg-kq-red/20 border border-kq-border hover:border-kq-red/40 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-2">
-                <i class="fa-solid fa-plane-up text-kq-gold"></i>
-                <span class="hidden md:inline font-medium">Tracker</span>
-            </button>
-
-            <button onclick="toggleAdminDrawer()" title="Admin Analytics" 
-                    class="p-2.5 rounded-xl bg-kq-accent/80 hover:bg-kq-gold/20 border border-kq-border hover:border-kq-gold/40 text-slate-300 hover:text-white transition-all text-xs flex items-center gap-2">
-                <i class="fa-solid fa-chart-line text-emerald-400"></i>
-                <span class="hidden md:inline font-medium">Metrics</span>
-            </button>
-        </div>
+        <div id="roleIndicatorBadge"></div>
     </header>
 
-    <!-- MAIN APP CONTAINER -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-6 flex flex-col justify-between overflow-hidden">
-
-        <!-- STAFF ID BADGE BANNER (Hidden by default) -->
-        <div id="staffBadgeBanner" class="hidden mb-3 p-3 rounded-xl bg-kq-accent/90 border border-kq-gold/30 flex items-center justify-between text-xs transition-all">
-            <div class="flex items-center space-x-2 text-kq-gold">
-                <i class="fa-solid fa-shield-halved text-sm"></i>
-                <span class="font-medium text-slate-200">Staff Mode Active:</span>
-                <span id="staffIdDisplay" class="font-mono text-kq-gold font-bold bg-black/40 px-2 py-0.5 rounded">KQ-88402</span>
-            </div>
-            <button onclick="promptStaffId()" class="text-slate-400 hover:text-white underline text-[11px]">
-                Change Staff ID
+    <!-- Role Switcher Tabs -->
+    <div class="tab-switcher-container">
+        <div class="tab-group">
+            <button class="tab-btn active" data-role="passenger" onclick="switchTab('passenger')">
+                ✈️ Passenger Support
+            </button>
+            <button class="tab-btn" data-role="staff" onclick="switchTab('staff')">
+                🛡️ Internal Staff Ops
             </button>
         </div>
+    </div>
 
-        <!-- CHAT MESSAGES WINDOW -->
-        <div id="chatContainer" class="flex-1 overflow-y-auto pr-1 space-y-4 mb-4 text-sm">
-            
-            <!-- Welcome Bot Message -->
-            <div class="flex items-start space-x-3 max-w-3xl">
-                <div class="w-8 h-8 rounded-lg bg-kq-red flex items-center justify-center text-white shrink-0 shadow-md shadow-kq-red/20">
-                    <i class="fa-solid fa-robot text-xs"></i>
-                </div>
-                <div class="space-y-1.5 w-full">
-                    <div class="glass-panel p-4 rounded-2xl rounded-tl-sm text-slate-200 space-y-2 border border-kq-border">
-                        <p class="font-semibold text-white flex items-center justify-between">
-                            <span>Jambo! I am your Kenya Airways AI Assistant. ✈️</span>
-                            <span class="text-[10px] text-kq-gold bg-kq-gold/10 px-2 py-0.5 rounded-full border border-kq-gold/20">Online</span>
-                        </p>
-                        <p class="text-slate-300 leading-relaxed text-xs sm:text-sm">
-                            I can assist you with real-time flight tracking (e.g. <span class="text-kq-gold font-mono cursor-pointer hover:underline" onclick="sendQuickMessage('KQ 101 status')">KQ 101</span>), baggage policies, check-in information, and internal staff scheduling queries.
-                        </p>
-                    </div>
-                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 px-1">
-                        <span>Intent: <strong class="text-slate-400">system_greeting</strong></span>
-                        <span>•</span>
-                        <span>Confidence: <strong class="text-emerald-400">100%</strong></span>
-                        <span>•</span>
-                        <span>Latency: <strong class="text-slate-400">0.8ms</strong></span>
-                    </div>
+    <!-- Main Active Workspace -->
+    <main>
+        <!-- Passenger Chat Panel -->
+        <div id="passengerPanel" class="chat-panel active">
+            <div class="message-row assistant">
+                <div class="bubble">
+                    Jambo! 👋 Welcome to Kenya Airways Customer Care. How can I assist you with your flights, baggage allowance, or bookings today?
                 </div>
             </div>
-
         </div>
 
-        <!-- QUICK SUGGESTIONS CHIPS -->
-        <div class="mb-3">
-            <p class="text-[11px] text-slate-400 mb-1.5 font-medium flex items-center gap-1">
-                <i class="fa-solid fa-bolt text-kq-gold text-[10px]"></i> Frequent Queries:
-            </p>
-            <div id="suggestionsContainer" class="flex flex-wrap gap-2">
-                <!-- Dynamically populated via JS -->
+        <!-- Staff Chat Panel -->
+        <div id="staffPanel" class="chat-panel">
+            <div class="message-row assistant">
+                <div class="bubble">
+                    Staff Ops Mode Active. 🔒 You are authorized for internal shift rosters, operational flight manifests, and duty schedules. How can I help?
+                </div>
             </div>
         </div>
 
-        <!-- INPUT CONTROLS SECTION -->
-        <div class="relative glass-panel rounded-2xl p-2 sm:p-2.5 border border-kq-border focus-within:border-kq-red/50 transition-all shadow-xl">
-            <form id="chatForm" onsubmit="handleFormSubmit(event)" class="flex items-center space-x-2">
-                <button type="button" onclick="triggerFileUpload()" class="p-2.5 text-slate-400 hover:text-kq-gold transition-colors rounded-xl hover:bg-kq-accent" title="Attach Flight Document">
-                    <i class="fa-solid fa-paperclip text-sm"></i>
-                </button>
-                <input type="file" id="fileInput" class="hidden" onchange="handleFileSelected(event)">
-
-                <input type="text" id="userInput" 
-                       placeholder="Ask about baggage, flight status (e.g., KQ101), shift roster..." 
-                       autocomplete="off"
-                       class="flex-1 bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none px-2 py-1.5">
-
-                <button type="submit" id="sendBtn" 
-                        class="px-4 py-2.5 bg-gradient-to-r from-kq-red to-kq-redDark hover:from-kq-redDark hover:to-kq-red text-white font-medium rounded-xl shadow-lg shadow-kq-red/25 flex items-center gap-2 text-xs transition-all active:scale-95">
-                    <span>Send</span>
-                    <i class="fa-solid fa-paper-plane text-xs"></i>
-                </button>
-            </form>
+        <!-- Quick Suggestions Chips (Dynamic per tab) -->
+        <div class="suggestions-bar" id="suggestionsContainer">
+            <!-- Populated via JS based on active tab -->
         </div>
 
-        <div class="mt-2 text-center text-[11px] text-slate-500">
-            Kenya Airways AI Assistant • FastAPI ASGI Backend • Powered by AviationStack API
+        <!-- Input Box Area -->
+        <div class="input-area">
+            <input type="text" id="userInput" class="chat-input" placeholder="Ask about baggage, flight status, bookings..." onkeypress="handleKeyPress(event)" />
+            <button class="send-btn" onclick="sendMessage()">Send</button>
         </div>
     </main>
 
-    <!-- LIVE FLIGHT TRACKER MODAL -->
-    <div id="flightModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-lg rounded-2xl border border-kq-border p-6 shadow-2xl relative">
-            <button onclick="toggleFlightModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            
-            <div class="flex items-center space-x-3 mb-5">
-                <div class="w-10 h-10 rounded-xl bg-kq-red/20 border border-kq-red/40 flex items-center justify-center text-kq-red">
-                    <i class="fa-solid fa-plane text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="text-base font-bold text-white">Live Flight Tracker</h3>
-                    <p class="text-xs text-slate-400">Direct query to KQ Flight Operations</p>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <div class="flex gap-2">
-                    <input type="text" id="modalFlightCode" placeholder="Enter Flight Number (e.g. KQ100)" 
-                           class="flex-1 bg-kq-navy border border-kq-border rounded-xl px-3.5 py-2 text-sm text-white uppercase focus:outline-none focus:border-kq-red">
-                    <button onclick="searchFlightFromModal()" class="px-4 py-2 bg-kq-red hover:bg-kq-redDark text-white text-xs font-semibold rounded-xl transition-all">
-                        Search
-                    </button>
-                </div>
-
-                <!-- Quick Presets -->
-                <div class="flex items-center space-x-2 text-xs">
-                    <span class="text-slate-400">Popular:</span>
-                    <button onclick="quickModalSearch('KQ100')" class="px-2.5 py-1 bg-kq-accent rounded-lg text-slate-300 hover:text-white hover:bg-kq-border">KQ100</button>
-                    <button onclick="quickModalSearch('KQ102')" class="px-2.5 py-1 bg-kq-accent rounded-lg text-slate-300 hover:text-white hover:bg-kq-border">KQ102</button>
-                    <button onclick="quickModalSearch('KQ305')" class="px-2.5 py-1 bg-kq-accent rounded-lg text-slate-300 hover:text-white hover:bg-kq-border">KQ305</button>
-                </div>
-
-                <div id="modalFlightResults" class="hidden p-4 rounded-xl bg-kq-navy border border-kq-border space-y-2 text-xs">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ADMIN METRICS DRAWER -->
-    <div id="adminDrawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-kq-navy/95 backdrop-blur-xl border-l border-kq-border z-50 transform translate-x-full transition-transform duration-300 p-6 flex flex-col justify-between shadow-2xl">
-        <div>
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-kq-border">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-chart-pie text-kq-gold text-lg"></i>
-                    <h3 class="font-bold text-white text-base">System Telemetry & Logs</h3>
-                </div>
-                <button onclick="toggleAdminDrawer()" class="text-slate-400 hover:text-white text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="p-3.5 rounded-xl bg-kq-card border border-kq-border text-center">
-                    <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Avg Latency</p>
-                    <p class="text-xl font-bold text-emerald-400 mt-1">3.4 ms</p>
-                </div>
-                <div class="p-3.5 rounded-xl bg-kq-card border border-kq-border text-center">
-                    <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Model Confidence</p>
-                    <p class="text-xl font-bold text-kq-gold mt-1">94.2%</p>
-                </div>
-            </div>
-
-            <div class="space-y-3">
-                <h4 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Recent Interaction Logs</h4>
-                <div id="logsContainer" class="space-y-2 max-h-80 overflow-y-auto pr-1 text-xs">
-                    <!-- Dynamic logs -->
-                </div>
-            </div>
-        </div>
-
-        <div class="pt-4 border-t border-kq-border flex gap-2">
-            <button onclick="openFeedbackModal()" class="flex-1 py-2.5 bg-kq-accent hover:bg-kq-border text-white text-xs font-semibold rounded-xl transition-all text-center">
-                Submit Feedback Score
-            </button>
-            <a href="/admin" target="_blank" class="py-2.5 px-4 bg-kq-red hover:bg-kq-redDark text-white text-xs font-semibold rounded-xl transition-all text-center">
-                Full Admin Portal
-            </a>
-        </div>
-    </div>
-
-    <!-- USABILITY FEEDBACK MODAL -->
-    <div id="feedbackModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md rounded-2xl border border-kq-border p-6 shadow-2xl relative space-y-4">
-            <button onclick="closeFeedbackModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-star text-kq-gold"></i> Rate Assistant Usability
-            </h3>
-            <p class="text-xs text-slate-300">How would you score your experience with the assistant?</p>
-
-            <div class="flex justify-center space-x-3 py-2">
-                <button onclick="setScore(1)" class="star-btn text-2xl text-slate-600 hover:text-kq-gold transition-colors" data-score="1"><i class="fa-solid fa-star"></i></button>
-                <button onclick="setScore(2)" class="star-btn text-2xl text-slate-600 hover:text-kq-gold transition-colors" data-score="2"><i class="fa-solid fa-star"></i></button>
-                <button onclick="setScore(3)" class="star-btn text-2xl text-slate-600 hover:text-kq-gold transition-colors" data-score="3"><i class="fa-solid fa-star"></i></button>
-                <button onclick="setScore(4)" class="star-btn text-2xl text-slate-600 hover:text-kq-gold transition-colors" data-score="4"><i class="fa-solid fa-star"></i></button>
-                <button onclick="setScore(5)" class="star-btn text-2xl text-slate-600 hover:text-kq-gold transition-colors" data-score="5"><i class="fa-solid fa-star"></i></button>
-            </div>
-
-            <textarea id="feedbackComment" rows="3" placeholder="Optional comments..." 
-                      class="w-full bg-kq-navy border border-kq-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-kq-red"></textarea>
-
-            <button onclick="submitFeedback()" class="w-full py-2.5 bg-kq-red hover:bg-kq-redDark text-white text-xs font-semibold rounded-xl transition-all">
-                Submit Feedback
-            </button>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC & API INTEGRATION -->
     <script>
-        // State Management
         let currentRole = 'passenger';
-        let currentStaffId = 'KQ-88402';
-        let currentSessionToken = 'sess-' + Math.random().toString(36).substr(2, 9);
-        let selectedScore = 5;
-        let lastLogId = null;
 
-        // Quick Suggestions mapping by role
-        const suggestionsMap = {
+        const suggestions = {
             passenger: [
-                "KQ 101 status",
-                "Baggage allowance",
-                "Online check-in policy",
-                "Frequent flyer info"
+                "Baggage allowance policy",
+                "Check status of KQ100",
+                "How do I rebook my ticket?",
+                "What amenities are on Boeing 787 Dreamliner?"
             ],
             staff: [
-                "Shift Roster",
-                "Crew Briefing",
-                "Leave Application",
-                "Maintenance Log"
+                "Show my shift schedule for next week",
+                "Fetch ground crew roster for KQ102",
+                "Report equipment issue at Terminal 1A"
             ]
         };
 
-        // Initialize App
-        window.addEventListener('DOMContentLoaded', () => {
-            renderSuggestions();
-            populateMockLogs();
-        });
-
-        // Switch Role Function
-        function switchRole(role) {
+        function switchTab(role) {
             currentRole = role;
-            const passBtn = document.getElementById('rolePassengerBtn');
-            const staffBtn = document.getElementById('roleStaffBtn');
-            const badgeBanner = document.getElementById('staffBadgeBanner');
 
-            if (role === 'staff') {
-                staffBtn.className = "px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 bg-kq-gold text-kq-navy shadow-md";
-                passBtn.className = "px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-1.5";
-                badgeBanner.classList.remove('hidden');
+            // Update Tab active styling
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-role') === role);
+            });
+
+            // Update visible Chat Panel
+            document.getElementById('passengerPanel').classList.toggle('active', role === 'passenger');
+            document.getElementById('staffPanel').classList.toggle('active', role === 'staff');
+
+            // Update input placeholder & header badge
+            const inputEl = document.getElementById('userInput');
+            const badgeEl = document.getElementById('roleIndicatorBadge');
+
+            if (role === 'passenger') {
+                inputEl.placeholder = "Ask about baggage allowance, flight status, bookings...";
+                badgeEl.innerHTML = '';
             } else {
-                passBtn.className = "px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 bg-kq-red text-white shadow-md";
-                staffBtn.className = "px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-white flex items-center gap-1.5";
-                badgeBanner.classList.add('hidden');
+                inputEl.placeholder = "Query internal duty rosters, staff IDs, shift schedules...";
+                badgeEl.innerHTML = '<span class="staff-badge">Staff Mode Enabled</span>';
             }
 
             renderSuggestions();
         }
 
-        function promptStaffId() {
-            const id = prompt("Enter your Kenya Airways Staff ID:", currentStaffId);
-            if (id && id.trim()) {
-                currentStaffId = id.trim().toUpperCase();
-                document.getElementById('staffIdDisplay').innerText = currentStaffId;
-            }
-        }
-
-        // Render Quick Suggestion Chips
         function renderSuggestions() {
             const container = document.getElementById('suggestionsContainer');
-            const suggestions = suggestionsMap[currentRole];
-            container.innerHTML = '';
-
-            suggestions.forEach(text => {
-                const btn = document.createElement('button');
-                btn.className = "px-3 py-1.5 rounded-xl bg-kq-accent/80 hover:bg-kq-red/20 border border-kq-border hover:border-kq-red/40 text-slate-300 hover:text-white transition-all text-xs font-medium flex items-center gap-1.5 active:scale-95";
-                btn.innerHTML = `<span>${text}</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500"></i>`;
-                btn.onclick = () => sendQuickMessage(text);
-                container.appendChild(btn);
-            });
+            container.innerHTML = suggestions[currentRole]
+                .map(text => `<button class="chip" onclick="useSuggestion('${text}')">${text}</button>`)
+                .join('');
         }
 
-        function sendQuickMessage(text) {
+        function useSuggestion(text) {
             document.getElementById('userInput').value = text;
-            handleFormSubmit(new Event('submit'));
+            sendMessage();
         }
 
-        // Handle Form Submit & API Integration
-        async function handleFormSubmit(e) {
-            if (e) e.preventDefault();
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
             const inputEl = document.getElementById('userInput');
-            const message = inputEl.value.trim();
-            if (!message) return;
+            const query = inputEl.value.trim();
+            if (!query) return;
 
-            // 1. Append User Message to UI
-            appendUserMessage(message);
+            // Target current active panel for state persistence
+            const activePanel = currentRole === 'passenger' 
+                ? document.getElementById('passengerPanel') 
+                : document.getElementById('staffPanel');
+
+            // Append User Message to active panel
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'message-row user';
+            userMsgDiv.innerHTML = `<div class="bubble">${escapeHtml(query)}</div>`;
+            activePanel.appendChild(userMsgDiv);
+
             inputEl.value = '';
-
-            // 2. Append Typing Indicator
-            const typingId = appendTypingIndicator();
-
-            const startTime = performance.now();
+            activePanel.scrollTop = activePanel.scrollHeight;
 
             try {
-                // Fetch call to FastAPI backend
+                const startTime = performance.now();
+                
+                // Real request to FastAPI backend with explicit role param
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: message,
-                        role: currentRole,
-                        session_token: currentSessionToken,
-                        staff_id: currentRole === 'staff' ? currentStaffId : null
-                    })
+                    body: JSON.stringify({ message: query, role: currentRole })
                 });
 
-                removeTypingIndicator(typingId);
+                const latency = (performance.now() - startTime).toFixed(1);
+                let data;
 
                 if (response.ok) {
-                    const data = await response.json();
-                    lastLogId = data.log_id;
-                    appendBotResponse(data);
-                    addLogToAdminDrawer(data, message);
+                    data = await response.json();
                 } else {
-                    // Fallback local mock simulation if server not reachable
-                    simulateFallbackResponse(message, startTime);
+                    data = {
+                        response: "Something went wrong while communicating with the server.",
+                        intent: "error",
+                        confidence: 0.0
+                    };
                 }
+
+                // Append Bot Response
+                const botMsgDiv = document.createElement('div');
+                botMsgDiv.className = 'message-row assistant';
+                botMsgDiv.innerHTML = `
+                    <div class="bubble">${escapeHtml(data.response || data.message)}</div>
+                    <div class="telemetry-tag">
+                        Intent: <span>${data.intent || 'N/A'}</span> | 
+                        Confidence: <span>${((data.confidence || 0) * 100).toFixed(0)}%</span> | 
+                        Latency: <span>${latency}ms</span>
+                    </div>
+                `;
+                activePanel.appendChild(botMsgDiv);
+                activePanel.scrollTop = activePanel.scrollHeight;
 
             } catch (err) {
-                removeTypingIndicator(typingId);
-                // Graceful client fallback for standalone preview
-                simulateFallbackResponse(message, startTime);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message-row assistant';
+                errorDiv.innerHTML = `<div class="bubble">Unable to reach the server. Please check your network connection.</div>`;
+                activePanel.appendChild(errorDiv);
+                activePanel.scrollTop = activePanel.scrollHeight;
             }
         }
 
-        // Render User Message
-        function appendUserMessage(text) {
-            const container = document.getElementById('chatContainer');
-            const div = document.createElement('div');
-            div.className = "flex items-start justify-end space-x-3 max-w-3xl ml-auto";
-            div.innerHTML = `
-                <div class="space-y-1 text-right">
-                    <div class="bg-gradient-to-r from-kq-red to-kq-redDark text-white p-3.5 rounded-2xl rounded-tr-sm shadow-md text-xs sm:text-sm inline-block text-left">
-                        ${escapeHtml(text)}
-                    </div>
-                    <div class="text-[10px] text-slate-500 px-1">
-                        ${currentRole === 'staff' ? `<span class="text-kq-gold font-mono">${currentStaffId}</span> • ` : ''}Just now
-                    </div>
-                </div>
-                <div class="w-8 h-8 rounded-lg bg-kq-accent border border-kq-border flex items-center justify-center text-slate-300 shrink-0 text-xs font-bold">
-                    ${currentRole === 'staff' ? '<i class="fa-solid fa-user-gear text-kq-gold"></i>' : '<i class="fa-solid fa-user text-slate-400"></i>'}
-                </div>
-            `;
-            container.appendChild(div);
-            scrollToBottom();
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        // Render Bot Response Card
-        function appendBotResponse(data) {
-            const container = document.getElementById('chatContainer');
-            const div = document.createElement('div');
-            div.className = "flex items-start space-x-3 max-w-3xl";
-
-            const isEscalated = data.escalated;
-            const borderClass = isEscalated ? "border-amber-500/50 bg-amber-500/5" : "border-kq-border";
-
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-lg bg-kq-red flex items-center justify-center text-white shrink-0 shadow-md shadow-kq-red/20">
-                    <i class="fa-solid fa-robot text-xs"></i>
-                </div>
-                <div class="space-y-1.5 w-full">
-                    <div class="glass-panel p-4 rounded-2xl rounded-tl-sm text-slate-200 space-y-2 border ${borderClass}">
-                        ${isEscalated ? `
-                            <div class="flex items-center space-x-2 text-amber-400 text-xs font-semibold mb-1">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                <span>Role Constraint Triggered</span>
-                            </div>
-                        ` : ''}
-                        <div class="text-xs sm:text-sm leading-relaxed whitespace-pre-line">${formatResponseText(data.response)}</div>
-                    </div>
-                    <div class="flex items-center space-x-3 text-[11px] text-slate-500 px-1">
-                        <span>Intent: <strong class="text-slate-300">${data.intent_label || data.intent_id}</strong></span>
-                        <span>•</span>
-                        <span>Confidence: <strong class="text-emerald-400">${Math.round(data.confidence * 100)}%</strong></span>
-                        <span>•</span>
-                        <span>Latency: <strong class="text-slate-400">${data.latency_ms}ms</strong></span>
-                    </div>
-                </div>
-            `;
-            container.appendChild(div);
-            scrollToBottom();
-        }
-
-        // Typing Indicator
-        function appendTypingIndicator() {
-            const container = document.getElementById('chatContainer');
-            const id = 'typing-' + Date.now();
-            const div = document.createElement('div');
-            div.id = id;
-            div.className = "flex items-start space-x-3 max-w-3xl";
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-lg bg-kq-red flex items-center justify-center text-white shrink-0">
-                    <i class="fa-solid fa-robot text-xs"></i>
-                </div>
-                <div class="glass-panel px-4 py-3 rounded-2xl rounded-tl-sm border border-kq-border flex items-center space-x-1.5">
-                    <div class="w-2 h-2 rounded-full bg-kq-gold animate-bounce"></div>
-                    <div class="w-2 h-2 rounded-full bg-kq-gold animate-bounce [animation-delay:0.2s]"></div>
-                    <div class="w-2 h-2 rounded-full bg-kq-gold animate-bounce [animation-delay:0.4s]"></div>
-                </div>
-            `;
-            container.appendChild(div);
-            scrollToBottom();
-            return id;
-        }
-
-        function removeTypingIndicator(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        }
-
-        // Client-side Fallback Simulation
-        function simulateFallbackResponse(msg, startTime) {
-            const latency = (performance.now() - startTime + 3.2).toFixed(1);
-            const lower = msg.toLowerCase();
-
-            let responseText = "Thank you for reaching out to Kenya Airways. Please let me know how I can assist with your travel or flight information.";
-            let intent = "general_query";
-            let confidence = 0.88;
-            let escalated = false;
-
-            if (lower.includes("kq")) {
-                const code = (msg.match(/kq\s?\d{3,4}/i) || ["KQ101"])[0].toUpperCase();
-                responseText = `✈️ **Live Flight Details for ${code}:**\n\n• **Status:** On Time / En-Route\n• **Origin:** Nairobi Jomo Kenyatta (NBO)\n• **Destination:** London Heathrow (LHR)\n• **Scheduled Departure:** 09:15 EAT\n• **Gate:** Gate 14B`;
-                intent = "flight_status";
-                confidence = 1.0;
-            } else if (lower.includes("roster") || lower.includes("shift") || lower.includes("leave")) {
-                if (currentRole === 'passenger') {
-                    responseText = "That looks like an internal staff question — please switch roles above if you are an employee.";
-                    intent = "staff_roster";
-                    confidence = 0.92;
-                    escalated = true;
-                } else {
-                    responseText = `📋 **Staff Roster Summary for ID ${currentStaffId}:**\n\n• **Next Shift:** Tomorrow, 06:00 - 14:00 EAT\n• **Duty:** Senior Cabin Crew / Flight Operations\n• **Briefing Hub:** Terminal 1A Duty Office`;
-                    intent = "staff_roster";
-                    confidence = 0.96;
-                }
-            } else if (lower.includes("baggage")) {
-                responseText = "🧳 **Kenya Airways Baggage Allowance:**\n\n• **Economy Class:** 2 pieces up to 23kg each.\n• **Business Class:** 2 pieces up to 32kg each.\n• **Carry-On:** 1 bag (12kg max) + 1 personal item.";
-                intent = "baggage_policy";
-                confidence = 0.95;
-            }
-
-            const mockData = {
-                log_id: 'mock-' + Date.now(),
-                intent_id: intent,
-                intent_label: intent.replace('_', ' ').toUpperCase(),
-                confidence: confidence,
-                escalated: escalated,
-                latency_ms: latency,
-                response: responseText
-            };
-
-            appendBotResponse(mockData);
-            addLogToAdminDrawer(mockData, msg);
-        }
-
-        // Helper UI Actions
-        function toggleFlightModal() {
-            const modal = document.getElementById('flightModal');
-            modal.classList.toggle('hidden');
-        }
-
-        function quickModalSearch(code) {
-            document.getElementById('modalFlightCode').value = code;
-            searchFlightFromModal();
-        }
-
-        function searchFlightFromModal() {
-            const code = document.getElementById('modalFlightCode').value.trim();
-            if (!code) return;
-            const resEl = document.getElementById('modalFlightResults');
-            resEl.classList.remove('hidden');
-            resEl.innerHTML = `
-                <div class="flex items-center justify-between font-bold text-white">
-                    <span>${code.toUpperCase()}</span>
-                    <span class="text-emerald-400">Scheduled / On Time</span>
-                </div>
-                <div class="text-slate-400 space-y-1">
-                    <p>• Route: Nairobi (NBO) ✈ Amsterdam (AMS)</p>
-                    <p>• Departure: 23:59 EAT (Terminal 1A)</p>
-                    <p>• Aircraft: Boeing 787-8 Dreamliner</p>
-                </div>
-            `;
-        }
-
-        function toggleAdminDrawer() {
-            const drawer = document.getElementById('adminDrawer');
-            drawer.classList.toggle('translate-x-full');
-        }
-
-        function addLogToAdminDrawer(data, query) {
-            const container = document.getElementById('logsContainer');
-            const div = document.createElement('div');
-            div.className = "p-2.5 rounded-xl bg-kq-card border border-kq-border space-y-1";
-            div.innerHTML = `
-                <div class="flex items-center justify-between text-[11px]">
-                    <span class="font-mono text-kq-gold">${escapeHtml(query.substring(0, 20))}...</span>
-                    <span class="text-slate-400">${data.latency_ms}ms</span>
-                </div>
-                <div class="flex items-center justify-between text-[10px] text-slate-500">
-                    <span>Role: ${currentRole}</span>
-                    <span class="${data.escalated ? 'text-amber-400' : 'text-emerald-400'}">${data.intent_id}</span>
-                </div>
-            `;
-            container.prepend(div);
-        }
-
-        function populateMockLogs() {
-            const mockLogs = [
-                { query: "KQ100 status", latency: "2.8", role: "passenger", intent: "flight_status" },
-                { query: "Shift Roster query", latency: "4.1", role: "staff", intent: "staff_roster" },
-                { query: "Baggage limits", latency: "1.9", role: "passenger", intent: "baggage_policy" }
-            ];
-            mockLogs.forEach(l => {
-                addLogToAdminDrawer({ latency_ms: l.latency, intent_id: l.intent, escalated: false }, l.query);
-            });
-        }
-
-        function openFeedbackModal() {
-            document.getElementById('feedbackModal').classList.remove('hidden');
-        }
-        function closeFeedbackModal() {
-            document.getElementById('feedbackModal').classList.add('hidden');
-        }
-
-        function setScore(score) {
-            selectedScore = score;
-            document.querySelectorAll('.star-btn').forEach((btn, idx) => {
-                btn.style.color = idx < score ? '#D4AF37' : '#475569';
-            });
-        }
-
-        async function submitFeedback() {
-            const comments = document.getElementById('feedbackComment').value;
-            try {
-                await fetch('/api/feedback', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        log_id: lastLogId || 'session-log',
-                        usability_score: selectedScore,
-                        comments: comments
-                    })
-                });
-            } catch(e) {}
-            
-            alert('Asante! Thank you for your feedback.');
-            closeFeedbackModal();
-        }
-
-        function triggerFileUpload() {
-            document.getElementById('fileInput').click();
-        }
-
-        function handleFileSelected(e) {
-            if (e.target.files.length > 0) {
-                const fileName = e.target.files[0].name;
-                document.getElementById('userInput').value = `[Attachment: ${fileName}] Request document review`;
-            }
-        }
-
-        function scrollToBottom() {
-            const c = document.getElementById('chatContainer');
-            c.scrollTop = c.scrollHeight;
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        function formatResponseText(text) {
-            return escapeHtml(text)
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/•/g, '&bull;');
-        }
+        // Initial setup
+        renderSuggestions();
     </script>
 </body>
 </html>
