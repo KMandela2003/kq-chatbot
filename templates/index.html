@@ -79,6 +79,32 @@
             text-transform: uppercase;
         }
 
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .auth-nav-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--kq-border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .auth-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
         /* Mode / Tab Switcher Bar */
         .tab-switcher-container {
             display: flex;
@@ -223,6 +249,7 @@
             font-size: 0.95rem;
             line-height: 1.5;
             word-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         .message-row.user .bubble {
@@ -321,7 +348,101 @@
             border: 1px solid rgba(37, 99, 235, 0.4);
             padding: 2px 8px;
             border-radius: 12px;
-            margin-left: 8px;
+        }
+
+        /* Auth Modal Styling */
+        .auth-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(9, 13, 18, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-modal-card {
+            background: #161B22;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            width: 90%;
+            max-width: 420px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .modal-toggle-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .modal-toggle-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .auth-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .auth-field {
+            background: #0D1117;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #FFF;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .auth-field:focus {
+            border-color: var(--kq-gold);
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            background: var(--kq-red);
+            color: #FFF;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
         @keyframes fadeIn {
@@ -341,7 +462,12 @@
                 <div class="brand-subtitle">The Pride of Africa — AI Assistant</div>
             </div>
         </div>
-        <div id="roleIndicatorBadge"></div>
+        <div class="nav-actions">
+            <div id="roleIndicatorBadge"></div>
+            <button onclick="openAuthModal()" id="authNavBtn" class="auth-nav-btn">
+                👤 <span id="authBtnText">Sign In / Register</span>
+            </button>
+        </div>
     </header>
 
     <!-- Role Switcher Tabs -->
@@ -393,13 +519,43 @@
         <!-- Input Box Area -->
         <div class="input-area">
             <input type="text" id="userInput" class="chat-input" placeholder="Ask about baggage, flight status, bookings..." onkeypress="handleKeyPress(event)" />
-            <button class="send-btn" onclick="sendMessage()">Send</button>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
         </div>
     </main>
+
+    <!-- Auth Modal Overlay -->
+    <div id="authModal" class="auth-modal-overlay">
+        <div class="auth-modal-card">
+            <div class="modal-header">
+                <h3 id="authModalTitle" style="color:#F0F6FC; font-size:1.2rem;">Passenger Login</h3>
+                <button onclick="closeAuthModal()" class="modal-close-btn">&times;</button>
+            </div>
+
+            <div class="modal-toggle-group">
+                <button id="tabLoginBtn" onclick="setAuthMode('login')" class="modal-toggle-btn">Sign In</button>
+                <button id="tabRegisterBtn" onclick="setAuthMode('register')" class="modal-toggle-btn">Register</button>
+            </div>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div id="registerFields" style="display:none;" class="auth-input-group">
+                    <input type="text" id="authFullName" placeholder="Full Name" class="auth-field" />
+                </div>
+
+                <div class="auth-input-group">
+                    <input type="text" id="authIdentifier" placeholder="Email Address or Staff ID" required class="auth-field" />
+                    <input type="password" id="authPassword" placeholder="Password" required class="auth-field" />
+                </div>
+
+                <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Sign In</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         let currentRole = 'passenger';
         let verifiedStaffId = null;
+        let authMode = 'login'; // 'login' or 'register'
+        let currentUser = null;
 
         const suggestions = {
             passenger: [
@@ -415,6 +571,77 @@
             ]
         };
 
+        function openAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+            setAuthMode('login');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function setAuthMode(mode) {
+            authMode = mode;
+            const accentColor = currentRole === 'passenger' ? '#C8102E' : '#2563EB';
+            
+            document.getElementById('tabLoginBtn').style.background = mode === 'login' ? accentColor : 'transparent';
+            document.getElementById('tabLoginBtn').style.color = mode === 'login' ? '#FFF' : '#8B949E';
+            
+            document.getElementById('tabRegisterBtn').style.background = mode === 'register' ? accentColor : 'transparent';
+            document.getElementById('tabRegisterBtn').style.color = mode === 'register' ? '#FFF' : '#8B949E';
+            
+            document.getElementById('registerFields').style.display = mode === 'register' ? 'flex' : 'none';
+            document.getElementById('authSubmitBtn').style.background = accentColor;
+            document.getElementById('authSubmitBtn').innerText = mode === 'login' ? 'Sign In' : 'Create Account';
+            
+            const titlePrefix = currentRole === 'passenger' ? 'Passenger' : 'Staff Ops';
+            document.getElementById('authModalTitle').innerText = `${titlePrefix} — ${mode === 'login' ? 'Sign In' : 'Register'}`;
+            document.getElementById('authIdentifier').placeholder = currentRole === 'passenger' ? 'Email Address' : 'Staff ID (e.g. KQ-8842)';
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const identifier = document.getElementById('authIdentifier').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+            const fullName = document.getElementById('authFullName').value.trim();
+
+            const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+            const payload = { 
+                role: currentRole, 
+                identifier: identifier, 
+                password: password, 
+                full_name: fullName,
+                email: currentRole === 'passenger' ? identifier : null,
+                staff_id: currentRole === 'staff' ? identifier : null
+            };
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.message || `Welcome, ${data.name}!`);
+                    currentUser = data.name;
+                    document.getElementById('authBtnText').innerText = currentUser;
+                    
+                    if (currentRole === 'staff') {
+                        verifiedStaffId = data.identifier || identifier.toUpperCase();
+                        document.getElementById('staffIdInput').value = verifiedStaffId;
+                        document.getElementById('authStatusText').innerHTML = `<span style="color: var(--success-green)">✅ Verified Staff ID: <strong>${verifiedStaffId}</strong></span>`;
+                    }
+                    closeAuthModal();
+                } else {
+                    alert(data.detail || "Authentication failed.");
+                }
+            } catch (err) {
+                alert("Server connection error.");
+            }
+        }
+
         function verifyStaffId() {
             const idInput = document.getElementById('staffIdInput').value.trim().toUpperCase();
             if (!idInput) {
@@ -426,7 +653,6 @@
             const statusEl = document.getElementById('authStatusText');
             statusEl.innerHTML = `<span style="color: var(--success-green)">✅ Verified Staff ID: <strong>${verifiedStaffId}</strong></span>`;
 
-            // Append verification confirmation message
             const staffPanel = document.getElementById('staffPanel');
             const botMsgDiv = document.createElement('div');
             botMsgDiv.className = 'message-row assistant';
@@ -450,13 +676,16 @@
             document.getElementById('staffPanel').classList.toggle('active', role === 'staff');
 
             const inputEl = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
             const badgeEl = document.getElementById('roleIndicatorBadge');
 
             if (role === 'passenger') {
                 inputEl.placeholder = "Ask about baggage allowance, flight status, bookings...";
+                sendBtn.style.background = 'var(--kq-red)';
                 badgeEl.innerHTML = '';
             } else {
                 inputEl.placeholder = "Query shift rosters, staff duties, internal schedules...";
+                sendBtn.style.background = 'var(--staff-accent)';
                 badgeEl.innerHTML = '<span class="staff-badge">Staff Mode Active</span>';
             }
 
@@ -490,7 +719,6 @@
                 ? document.getElementById('passengerPanel') 
                 : document.getElementById('staffPanel');
 
-            // If staff is trying to access shift roster without ID
             if (currentRole === 'staff' && !verifiedStaffId && query.toLowerCase().includes('shift')) {
                 const promptMsg = document.createElement('div');
                 promptMsg.className = 'message-row assistant';
@@ -500,7 +728,6 @@
                     </div>
                 `;
                 
-                // Render user message first
                 const userMsgDiv = document.createElement('div');
                 userMsgDiv.className = 'message-row user';
                 userMsgDiv.innerHTML = `<div class="bubble">${escapeHtml(query)}</div>`;
@@ -512,7 +739,6 @@
                 return;
             }
 
-            // Append User Message
             const userMsgDiv = document.createElement('div');
             userMsgDiv.className = 'message-row user';
             userMsgDiv.innerHTML = `<div class="bubble">${escapeHtml(query)}</div>`;
@@ -524,7 +750,6 @@
             try {
                 const startTime = performance.now();
                 
-                // Request sent to FastAPI including role and optional staff_id
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -543,7 +768,7 @@
                 } else {
                     data = {
                         response: "Something went wrong while communicating with the server.",
-                        intent: "error",
+                        intent_label: "error",
                         confidence: 0.0
                     };
                 }
@@ -551,9 +776,9 @@
                 const botMsgDiv = document.createElement('div');
                 botMsgDiv.className = 'message-row assistant';
                 botMsgDiv.innerHTML = `
-                    <div class="bubble">${escapeHtml(data.response || data.message)}</div>
+                    <div class="bubble">${data.response || data.message}</div>
                     <div class="telemetry-tag">
-                        Intent: <span>${data.intent || 'N/A'}</span> | 
+                        Intent: <span>${data.intent_label || data.intent || 'N/A'}</span> | 
                         Confidence: <span>${((data.confidence || 0) * 100).toFixed(0)}%</span> | 
                         Latency: <span>${latency}ms</span>
                     </div>
