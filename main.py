@@ -8,11 +8,13 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 import httpx
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
+from typing import Optional
+from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -267,3 +269,92 @@ async def api_logs():
     with get_db() as conn:
         rows = conn.execute("SELECT * FROM interaction_logs ORDER BY timestamp DESC LIMIT 100").fetchall()
         return [dict(r) for r in rows]
+
+# Import database module
+import database
+from database import SessionLocal, StaffMember, ShiftRoster
+
+app = FastAPI(title="Kenya Airways AI Assistant")
+templates = Jinja2Templates(directory="templates")
+
+# Initialize SQLite tables and seed data on startup
+@app.on_event("startup")
+def startup_event():
+    database.init_db()
+
+# Dependency to get DB session per request
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Updated Request Schema
+class ChatRequest(BaseModel):
+    message: str
+    role: str = "passenger"              # "passenger" or "staff"
+    staff_id: Optional[str] = None       # e.g., "KQ-8842"
+
+@app.get("/")
+def read_root(request: Request):
+    return templates.TemplateResponse(request=request, name="index.html")
+
+@app.post("/api/chat")
+def chat_endpoint(payload: ChatRequest, db: Session = Depends(get_db)):
+    msg = payload.message.lower()
+    role = payload.role.lower()
+    staff_id = payload.staff_id.strip().upper() if payload.staff_id else None
+
+    # Role Security Guardrail
+    if role == "passenger" and any(term in msg for term in ["shift", "roster", "duty", "staff id"]):
+        return {
+            "response": "That looks like an internal staff question — please switch to the Internal Staff Ops tab above if you are an employee.",
+            "intent": "Role Guardrail Triggered",
+            "confidence": 0.95
+        }
+
+    # Staff Ops Handling
+    if role == "staff":
+        if not staff_id:
+            return {
+                "response": "🔑 Access Denied: Please enter and verify a valid Staff ID (e.g., KQ-8842) in the top bar before requesting internal operations.",
+                "intent": "Authentication Required",
+                "confidence": 0.99
+            }
+        
+        # Verify Staff Member in DB
+        staff = db.query(StaffMember).filter(StaffMember.staff_id == staff_id, StaffMember.is_active == True).first()
+        if not staff:
+            return {
+                "response": f"❌ Staff ID '{staff_id}' was not found in the Kenya Airways active employee database.",
+                "intent": "Invalid Staff ID",
+                "confidence": 0.99
+            }
+
+        # Query Shift Roster from DB
+        if any(term in msg for term in ["shift", "roster", "schedule", "duty"]):
+            rosters = db.query(ShiftRoster).filter(ShiftRoster.staff_id == staff_id).all()
+            if rosters:
+                roster_details = "\n".join([
+                    f"📅 **{r.shift_date}** | ⏰ {r.shift_time} | ✈️ Flight: {r.assigned_flight or 'N/A'} | 📍 Location: {r.location} | 📋 Duty: {r.duty_summary}"
+                    for r in rosters
+                ])
+                return {
+                    "response": f"Jambo **{staff.full_name}** ({staff.role} - {staff.department}). Here is your current shift roster:\n\n{roster_details}",
+                    "intent": "Shift Schedule Lookup",
+                    "confidence": 0.98
+                }
+            else:
+                return {
+                    "response": f"Jambo **{staff.full_name}**. No active shift rosters were found for your Staff ID.",
+                    "intent": "Shift Schedule Lookup",
+                    "confidence": 0.90
+                }
+
+    # Fallback / General FAQ Handling
+    return {
+        "response": f"Thank you for contacting Kenya Airways. Processed query: '{payload.message}'.",
+        "intent": "General Query",
+        "confidence": 0.85
+    }    
