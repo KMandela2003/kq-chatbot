@@ -14,8 +14,8 @@
             --kq-border: rgba(255, 255, 255, 0.12);
             --text-primary: #F0F6FC;
             --text-secondary: #8B949E;
-            --passenger-accent: #C8102E;
             --staff-accent: #2563EB;
+            --success-green: #2EA043;
         }
 
         * {
@@ -126,7 +126,56 @@
             box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
         }
 
-        /* Main Workspace & Chat Containers */
+        /* Staff Authentication Banner */
+        .staff-auth-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-bottom: 12px;
+        }
+
+        .staff-auth-inputs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .staff-id-input {
+            background: rgba(13, 17, 23, 0.8);
+            border: 1px solid var(--kq-border);
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: #FFF;
+            font-size: 0.85rem;
+            width: 130px;
+            text-transform: uppercase;
+        }
+
+        .auth-btn {
+            background: var(--staff-accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #58A6FF;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Workspace & Chat Containers */
         main {
             flex: 1;
             max-width: 900px;
@@ -320,17 +369,26 @@
 
         <!-- Staff Chat Panel -->
         <div id="staffPanel" class="chat-panel">
+            <!-- Staff Identification Banner -->
+            <div class="staff-auth-banner">
+                <div id="authStatusText" class="verified-badge">
+                    <span>⚠️ Unverified Staff Session</span>
+                </div>
+                <div class="staff-auth-inputs">
+                    <input type="text" id="staffIdInput" class="staff-id-input" placeholder="e.g. KQ-8842" />
+                    <button class="auth-btn" onclick="verifyStaffId()">Verify ID</button>
+                </div>
+            </div>
+
             <div class="message-row assistant">
-                <div class="bubble">
-                    Staff Ops Mode Active. 🔒 You are authorized for internal shift rosters, operational flight manifests, and duty schedules. How can I help?
+                <div class="bubble" id="staffGreeting">
+                    Staff Ops Mode Active. 🔒 Please verify your Staff ID above to access shift rosters, ground schedules, and internal duty assignments.
                 </div>
             </div>
         </div>
 
-        <!-- Quick Suggestions Chips (Dynamic per tab) -->
-        <div class="suggestions-bar" id="suggestionsContainer">
-            <!-- Populated via JS based on active tab -->
-        </div>
+        <!-- Quick Suggestions Chips -->
+        <div class="suggestions-bar" id="suggestionsContainer"></div>
 
         <!-- Input Box Area -->
         <div class="input-area">
@@ -341,6 +399,7 @@
 
     <script>
         let currentRole = 'passenger';
+        let verifiedStaffId = null;
 
         const suggestions = {
             passenger: [
@@ -350,25 +409,46 @@
                 "What amenities are on Boeing 787 Dreamliner?"
             ],
             staff: [
-                "Show my shift schedule for next week",
-                "Fetch ground crew roster for KQ102",
-                "Report equipment issue at Terminal 1A"
+                "Fetch my shift schedule for this week",
+                "Show ground crew duty roster for KQ102",
+                "Report equipment maintenance at Terminal 1A"
             ]
         };
+
+        function verifyStaffId() {
+            const idInput = document.getElementById('staffIdInput').value.trim().toUpperCase();
+            if (!idInput) {
+                alert("Please enter a valid Staff ID (e.g. KQ-8842)");
+                return;
+            }
+
+            verifiedStaffId = idInput;
+            const statusEl = document.getElementById('authStatusText');
+            statusEl.innerHTML = `<span style="color: var(--success-green)">✅ Verified Staff ID: <strong>${verifiedStaffId}</strong></span>`;
+
+            // Append verification confirmation message
+            const staffPanel = document.getElementById('staffPanel');
+            const botMsgDiv = document.createElement('div');
+            botMsgDiv.className = 'message-row assistant';
+            botMsgDiv.innerHTML = `
+                <div class="bubble">
+                    Authenticated successfully as Staff ID <strong>${verifiedStaffId}</strong>. You can now request your specific shift roster or crew schedules.
+                </div>
+            `;
+            staffPanel.appendChild(botMsgDiv);
+            staffPanel.scrollTop = staffPanel.scrollHeight;
+        }
 
         function switchTab(role) {
             currentRole = role;
 
-            // Update Tab active styling
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-role') === role);
             });
 
-            // Update visible Chat Panel
             document.getElementById('passengerPanel').classList.toggle('active', role === 'passenger');
             document.getElementById('staffPanel').classList.toggle('active', role === 'staff');
 
-            // Update input placeholder & header badge
             const inputEl = document.getElementById('userInput');
             const badgeEl = document.getElementById('roleIndicatorBadge');
 
@@ -376,8 +456,8 @@
                 inputEl.placeholder = "Ask about baggage allowance, flight status, bookings...";
                 badgeEl.innerHTML = '';
             } else {
-                inputEl.placeholder = "Query internal duty rosters, staff IDs, shift schedules...";
-                badgeEl.innerHTML = '<span class="staff-badge">Staff Mode Enabled</span>';
+                inputEl.placeholder = "Query shift rosters, staff duties, internal schedules...";
+                badgeEl.innerHTML = '<span class="staff-badge">Staff Mode Active</span>';
             }
 
             renderSuggestions();
@@ -406,12 +486,33 @@
             const query = inputEl.value.trim();
             if (!query) return;
 
-            // Target current active panel for state persistence
             const activePanel = currentRole === 'passenger' 
                 ? document.getElementById('passengerPanel') 
                 : document.getElementById('staffPanel');
 
-            // Append User Message to active panel
+            // If staff is trying to access shift roster without ID
+            if (currentRole === 'staff' && !verifiedStaffId && query.toLowerCase().includes('shift')) {
+                const promptMsg = document.createElement('div');
+                promptMsg.className = 'message-row assistant';
+                promptMsg.innerHTML = `
+                    <div class="bubble" style="border-left: 3px solid var(--kq-gold);">
+                        🔑 <strong>Staff ID Required:</strong> Please enter and verify your Staff ID in the top banner above to retrieve your personal shift roster.
+                    </div>
+                `;
+                
+                // Render user message first
+                const userMsgDiv = document.createElement('div');
+                userMsgDiv.className = 'message-row user';
+                userMsgDiv.innerHTML = `<div class="bubble">${escapeHtml(query)}</div>`;
+                activePanel.appendChild(userMsgDiv);
+                
+                activePanel.appendChild(promptMsg);
+                inputEl.value = '';
+                activePanel.scrollTop = activePanel.scrollHeight;
+                return;
+            }
+
+            // Append User Message
             const userMsgDiv = document.createElement('div');
             userMsgDiv.className = 'message-row user';
             userMsgDiv.innerHTML = `<div class="bubble">${escapeHtml(query)}</div>`;
@@ -423,11 +524,15 @@
             try {
                 const startTime = performance.now();
                 
-                // Real request to FastAPI backend with explicit role param
+                // Request sent to FastAPI including role and optional staff_id
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: query, role: currentRole })
+                    body: JSON.stringify({ 
+                        message: query, 
+                        role: currentRole,
+                        staff_id: verifiedStaffId 
+                    })
                 });
 
                 const latency = (performance.now() - startTime).toFixed(1);
@@ -443,7 +548,6 @@
                     };
                 }
 
-                // Append Bot Response
                 const botMsgDiv = document.createElement('div');
                 botMsgDiv.className = 'message-row assistant';
                 botMsgDiv.innerHTML = `
@@ -470,7 +574,6 @@
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        // Initial setup
         renderSuggestions();
     </script>
 </body>
