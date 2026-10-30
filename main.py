@@ -13,13 +13,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
+
+# Import database module for SQLAlchemy staff & roster models
+import database
+from database import SessionLocal, StaffMember, ShiftRoster
 
 load_dotenv()
 
@@ -32,8 +35,8 @@ CONFIDENCE_THRESHOLD = 0.25
 
 app = FastAPI(
     title="Kenya Airways AI Assistant",
-    description="Production FastAPI service for KQ Chatbot.",
-    version="1.0.0"
+    description="Production FastAPI service for KQ Chatbot with Passenger & Staff Roster Workflows.",
+    version="1.1.0"
 )
 
 app.add_middleware(
@@ -143,14 +146,25 @@ def classify(message: str):
     best_idx = probs.argmax()
     return classes[best_idx], float(probs[best_idx])
 
-# --- Database Setup ---
-def get_db():
+# --- Database & Session Management ---
+def get_sqlite_conn():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.on_event("startup")
+def startup_event():
+    # Initialize SQLAlchemy database models & seed staff info
+    database.init_db()
+    # Ensure raw interaction tables exist
+    conn = get_sqlite_conn()
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS interaction_logs (
             log_id TEXT PRIMARY KEY,
@@ -174,8 +188,6 @@ def init_db():
     conn.commit()
     conn.close()
 
-init_db()
-
 # --- Endpoints ---
 @app.get("/")
 async def index(request: Request):
@@ -186,60 +198,99 @@ async def admin(request: Request):
     return templates.TemplateResponse(request=request, name="admin.html")
 
 @app.post("/api/chat")
-async def api_chat(payload: ChatPayload):
+async def api_chat(payload: ChatPayload, db: Session = Depends(get_db)):
     start = time.perf_counter()
     session_token = payload.session_token or str(uuid.uuid4())
-    flight_code = extract_flight_code(payload.message)
+    msg = payload.message.strip().lower()
+    role = payload.role.strip().lower()
+    staff_id = payload.staff_id.strip().upper() if payload.staff_id else None
 
-    if flight_code:
-        response_text = await fetch_live_flight_status(flight_code)
-        latency = time.perf_counter() - start
-        log_id = str(uuid.uuid4())
-        
-        with get_db() as conn:
-            conn.execute(
-                """INSERT INTO interaction_logs
-                   (log_id, session_token, role, raw_input_text, classified_intent_id,
-                    confidence_score, response_latency_seconds, escalated, timestamp)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
-                (log_id, session_token, payload.role, payload.message, "flight_status", 1.0, latency, 0),
-            )
-            conn.commit()
-
-        return {
-            "log_id": log_id,
-            "session_token": session_token,
-            "intent_id": "flight_status",
-            "intent_label": "Flight Status (Live API)",
-            "confidence": 1.0,
-            "escalated": False,
-            "latency_ms": round(latency * 1000, 1),
-            "response": response_text,
-        }
-
-    intent_id, confidence = classify(payload.message)
-    latency = time.perf_counter() - start
+    response_text = ""
+    intent_id = "general_query"
+    intent_label = "General Query"
+    confidence = 0.85
     escalated = False
 
-    if intent_id is None or confidence < CONFIDENCE_THRESHOLD:
-        response_text = "I'm sorry, I couldn't fully understand your request. Please rephrase or provide a flight code (e.g., KQ101)."
-        intent_label = "unrecognized_intent"
+    # 1. Flight Code Check (Passenger Priority Feature)
+    flight_code = extract_flight_code(payload.message)
+    if flight_code and role == "passenger":
+        response_text = await fetch_live_flight_status(flight_code)
+        intent_id = "flight_status"
+        intent_label = "Flight Status (Live API)"
+        confidence = 1.0
+
+    # 2. Staff Mode Security Guardrail & Roster Queries
+    elif role == "staff":
+        if any(term in msg for term in ["shift", "roster", "schedule", "duty"]):
+            if not staff_id:
+                response_text = "🔑 Access Denied: Please enter and verify a valid Staff ID (e.g., KQ-8842) in the top bar before requesting internal operations."
+                intent_id = "authentication_required"
+                intent_label = "Authentication Required"
+                confidence = 0.99
+            else:
+                staff = db.query(StaffMember).filter(StaffMember.staff_id == staff_id, StaffMember.is_active == True).first()
+                if not staff:
+                    response_text = f"❌ Staff ID '{staff_id}' was not found in the Kenya Airways active employee database."
+                    intent_id = "invalid_staff_id"
+                    intent_label = "Invalid Staff ID"
+                    confidence = 0.99
+                else:
+                    rosters = db.query(ShiftRoster).filter(ShiftRoster.staff_id == staff_id).all()
+                    if rosters:
+                        roster_details = "\n".join([
+                            f"📅 **{r.shift_date}** | ⏰ {r.shift_time} | ✈️ Flight: {r.assigned_flight or 'N/A'} | 📍 Location: {r.location} | 📋 Duty: {r.duty_summary}"
+                            for r in rosters
+                        ])
+                        response_text = f"Jambo **{staff.full_name}** ({staff.role} - {staff.department}). Here is your current shift roster:\n\n{roster_details}"
+                        intent_id = "shift_schedule"
+                        intent_label = "Shift Schedule Lookup"
+                        confidence = 0.98
+                    else:
+                        response_text = f"Jambo **{staff.full_name}**. No active shift rosters were found for your Staff ID."
+                        intent_id = "shift_schedule"
+                        intent_label = "Shift Schedule Lookup"
+                        confidence = 0.90
+        else:
+            # Fallback to model classification for staff inquiries
+            cls_intent, cls_conf = classify(payload.message)
+            intent_id = cls_intent or "general_query"
+            confidence = cls_conf
+            intent_label = INTENT_BY_ID.get(intent_id, {}).get("label", "General Query")
+            response_text = INTENT_BY_ID.get(intent_id, {}).get("response", f"Processed staff query: '{payload.message}'.")
+
+    # 3. Passenger Mode Handling (NLP Model Classification & Guardrails)
     else:
-        intent_label = INTENT_BY_ID[intent_id]["label"]
-        if payload.role == "passenger" and intent_id in STAFF_ONLY_INTENTS:
-            response_text = "That looks like an internal staff question — please switch roles above if you are an employee."
+        # Check Guardrail for passenger trying to access staff info
+        if any(term in msg for term in ["shift", "roster", "duty", "staff id"]):
+            response_text = "That looks like an internal staff question — please switch to the Internal Staff Ops tab above if you are an employee."
+            intent_id = "role_guardrail_triggered"
+            intent_label = "Role Guardrail Triggered"
+            confidence = 0.95
             escalated = True
         else:
-            response_text = INTENT_BY_ID[intent_id]["response"]
+            cls_intent, cls_conf = classify(payload.message)
+            if cls_intent is None or cls_conf < CONFIDENCE_THRESHOLD:
+                response_text = "I'm sorry, I couldn't fully understand your request. Please rephrase or provide a flight code (e.g., KQ101)."
+                intent_id = "unrecognized_intent"
+                intent_label = "Unrecognized Intent"
+                confidence = cls_conf
+            else:
+                intent_id = cls_intent
+                confidence = cls_conf
+                intent_label = INTENT_BY_ID[intent_id]["label"]
+                response_text = INTENT_BY_ID[intent_id]["response"]
 
+    latency = time.perf_counter() - start
     log_id = str(uuid.uuid4())
-    with get_db() as conn:
+
+    # Log interaction to SQLite
+    with get_sqlite_conn() as conn:
         conn.execute(
             """INSERT INTO interaction_logs
                (log_id, session_token, role, raw_input_text, classified_intent_id,
                 confidence_score, response_latency_seconds, escalated, timestamp)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
-            (log_id, session_token, payload.role, payload.message, intent_id, confidence, latency, int(escalated)),
+            (log_id, session_token, role, payload.message, intent_id, confidence, latency, int(escalated)),
         )
         conn.commit()
 
@@ -256,7 +307,7 @@ async def api_chat(payload: ChatPayload):
 
 @app.post("/api/feedback")
 async def api_feedback(payload: FeedbackPayload):
-    with get_db() as conn:
+    with get_sqlite_conn() as conn:
         conn.execute(
             "INSERT INTO feedback_metrics (feedback_id, log_id, usability_score, comments) VALUES (?, ?, ?, ?)",
             (str(uuid.uuid4()), payload.log_id, payload.usability_score, payload.comments),
@@ -266,95 +317,6 @@ async def api_feedback(payload: FeedbackPayload):
 
 @app.get("/api/logs")
 async def api_logs():
-    with get_db() as conn:
+    with get_sqlite_conn() as conn:
         rows = conn.execute("SELECT * FROM interaction_logs ORDER BY timestamp DESC LIMIT 100").fetchall()
         return [dict(r) for r in rows]
-
-# Import database module
-import database
-from database import SessionLocal, StaffMember, ShiftRoster
-
-app = FastAPI(title="Kenya Airways AI Assistant")
-templates = Jinja2Templates(directory="templates")
-
-# Initialize SQLite tables and seed data on startup
-@app.on_event("startup")
-def startup_event():
-    database.init_db()
-
-# Dependency to get DB session per request
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# Updated Request Schema
-class ChatRequest(BaseModel):
-    message: str
-    role: str = "passenger"              # "passenger" or "staff"
-    staff_id: Optional[str] = None       # e.g., "KQ-8842"
-
-@app.get("/")
-def read_root(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html")
-
-@app.post("/api/chat")
-def chat_endpoint(payload: ChatRequest, db: Session = Depends(get_db)):
-    msg = payload.message.lower()
-    role = payload.role.lower()
-    staff_id = payload.staff_id.strip().upper() if payload.staff_id else None
-
-    # Role Security Guardrail
-    if role == "passenger" and any(term in msg for term in ["shift", "roster", "duty", "staff id"]):
-        return {
-            "response": "That looks like an internal staff question — please switch to the Internal Staff Ops tab above if you are an employee.",
-            "intent": "Role Guardrail Triggered",
-            "confidence": 0.95
-        }
-
-    # Staff Ops Handling
-    if role == "staff":
-        if not staff_id:
-            return {
-                "response": "🔑 Access Denied: Please enter and verify a valid Staff ID (e.g., KQ-8842) in the top bar before requesting internal operations.",
-                "intent": "Authentication Required",
-                "confidence": 0.99
-            }
-        
-        # Verify Staff Member in DB
-        staff = db.query(StaffMember).filter(StaffMember.staff_id == staff_id, StaffMember.is_active == True).first()
-        if not staff:
-            return {
-                "response": f"❌ Staff ID '{staff_id}' was not found in the Kenya Airways active employee database.",
-                "intent": "Invalid Staff ID",
-                "confidence": 0.99
-            }
-
-        # Query Shift Roster from DB
-        if any(term in msg for term in ["shift", "roster", "schedule", "duty"]):
-            rosters = db.query(ShiftRoster).filter(ShiftRoster.staff_id == staff_id).all()
-            if rosters:
-                roster_details = "\n".join([
-                    f"📅 **{r.shift_date}** | ⏰ {r.shift_time} | ✈️ Flight: {r.assigned_flight or 'N/A'} | 📍 Location: {r.location} | 📋 Duty: {r.duty_summary}"
-                    for r in rosters
-                ])
-                return {
-                    "response": f"Jambo **{staff.full_name}** ({staff.role} - {staff.department}). Here is your current shift roster:\n\n{roster_details}",
-                    "intent": "Shift Schedule Lookup",
-                    "confidence": 0.98
-                }
-            else:
-                return {
-                    "response": f"Jambo **{staff.full_name}**. No active shift rosters were found for your Staff ID.",
-                    "intent": "Shift Schedule Lookup",
-                    "confidence": 0.90
-                }
-
-    # Fallback / General FAQ Handling
-    return {
-        "response": f"Thank you for contacting Kenya Airways. Processed query: '{payload.message}'.",
-        "intent": "General Query",
-        "confidence": 0.85
-    }    
